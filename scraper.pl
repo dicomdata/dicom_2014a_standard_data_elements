@@ -121,7 +121,7 @@ my $ua = LWP::UserAgent->new(
 
 # Get base root.
 print 'Page: '.$base_uri->as_string."\n";
-my $xml_file = get_file($base_uri->as_string);
+my $xml_file = get_file($base_uri);
 my $h = Dicom::Handler->new(
 	'dt' => $dt,
 );
