@@ -7,6 +7,9 @@ package Dicom::Handler;
 use strict;
 use warnings;
 
+# Modules.
+use English;
+
 # Constructor.
 sub new {
 	my ($type, %params) = @_;
@@ -53,21 +56,32 @@ sub end_element {
 		}
 		my ($tag, $name, $keyword, $vr, $vm, $retired)
 			= @{$self->{'td'}};
-		my ($tag_group, $tag_number) = $tag =~ m/^\(([\d\w]+),([\d\w]+)\)$/ms;
+		my ($tag_group, $tag_number) = $tag
+			=~ m/^\(([\d\w]+),([\d\w]+)\)$/ms;
 		$keyword =~ s/\x{200b}//gms;
-		print "($tag_group,$tag_number): $keyword\n";
-		# TODO Update.
-		$self->{'dt'}->insert({
-			'Tag_group' => $tag_group,
-			'Tag_number' => $tag_number,
-			'Name' => $name,
-			'Keyword' => $keyword,
-			'VR' => $vr,
-			'VM' => $vm,
-			'Retired' => $retired,
-		});
-		$self->{'dt'}->create_index(['Tag_group', 'Tag_number'], 'data',
-			1, 1);
+		my $ret_ar = eval {
+			$self->{'dt'}->execute('SELECT COUNT(*) FROM data '.
+				'WHERE Tag_group = ? AND Tag_number = ?',
+				$tag_group, $tag_number);
+		};
+		if ($EVAL_ERROR || ! @{$ret_ar}
+			|| ! exists $ret_ar->[0]->{'count(*)'}
+			|| ! defined $ret_ar->[0]->{'count(*)'}
+			|| $ret_ar->[0]->{'count(*)'} == 0) {
+
+			print "($tag_group,$tag_number): $keyword\n";
+			$self->{'dt'}->insert({
+				'Tag_group' => $tag_group,
+				'Tag_number' => $tag_number,
+				'Name' => $name,
+				'Keyword' => $keyword,
+				'VR' => $vr,
+				'VM' => $vm,
+				'Retired' => $retired,
+			});
+		}
+		$self->{'dt'}->create_index(['Tag_group', 'Tag_number'],
+			'data', 1, 1);
 		$self->{'td'} = ['', '', '', '', '', ''];		
 		$self->{'td_index'} = -1;
 	}
