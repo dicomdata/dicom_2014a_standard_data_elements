@@ -39,6 +39,14 @@ sub start_element {
 	if ($element->{'Name'} eq 'td') {
 		$self->{'td_index'}++;
 	}
+
+	# XREF.
+	if ($element->{'Name'} eq 'xref') {
+		my $note = $element->{'Attributes'}->{'{}linkend'}->{'Value'};
+		$note =~ s/^note_//ms;
+		$note =~ s/_/\./gms;
+		$self->{'td'}->[$self->{'td_index'}] .= $note;
+	}
 	return;
 }
 
