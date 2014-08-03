@@ -34,6 +34,8 @@ sub start_element {
 	if (! $self->{'table_flag'}) {
 		return;
 	}
+
+	# Right td.
 	if ($element->{'Name'} eq 'td') {
 		$self->{'td_index'}++;
 	}
@@ -49,6 +51,8 @@ sub end_element {
 	if ($element->{'Name'} eq 'table') {
 		$self->{'table_flag'} = 0;
 	}
+
+	# Right tr element.
 	if ($element->{'Name'} eq 'tr') {
 		if ($self->{'tr_index'} == 0) {
 			$self->{'tr_index'}++;
@@ -94,9 +98,13 @@ sub characters {
 	if (! $self->{'table_flag'}) {
 		return;
 	}
+
+	# Skip blank data.
 	if ($characters->{'Data'} =~ m/^\s*$/ms) {
 		return;
 	}
+
+	# Right td.
 	$self->{'td'}->[$self->{'td_index'}] .= $characters->{'Data'};
 	return;
 }
