@@ -73,23 +73,23 @@ sub end_element {
 		}
 		my ($tag, $name, $keyword, $vr, $vm, $retired)
 			= @{$self->{'td'}};
-		my ($tag_group, $tag_number) = $tag
+		my ($group_number, $element_number) = $tag
 			=~ m/^\(([\d\w]+),([\d\w]+)\)$/ms;
 		$keyword =~ s/\x{200b}//gms;
 		my $ret_ar = eval {
 			$self->{'dt'}->execute('SELECT COUNT(*) FROM data '.
-				'WHERE Tag_group = ? AND Tag_number = ?',
-				$tag_group, $tag_number);
+				'WHERE Group_number = ? AND Element_number = ?',
+				$group_number, $element_number);
 		};
 		if ($EVAL_ERROR || ! @{$ret_ar}
 			|| ! exists $ret_ar->[0]->{'count(*)'}
 			|| ! defined $ret_ar->[0]->{'count(*)'}
 			|| $ret_ar->[0]->{'count(*)'} == 0) {
 
-			print "($tag_group,$tag_number): $keyword\n";
+			print "($group_number,$element_number): $keyword\n";
 			$self->{'dt'}->insert({
-				'Tag_group' => $tag_group,
-				'Tag_number' => $tag_number,
+				'Group_number' => $group_number,
+				'Element_number' => $element_number,
 				'Name' => $name,
 				'Keyword' => $keyword,
 				'VR' => $vr,
@@ -97,7 +97,7 @@ sub end_element {
 				'Retired' => $retired,
 			});
 		}
-		$self->{'dt'}->create_index(['Tag_group', 'Tag_number'],
+		$self->{'dt'}->create_index(['Group_number', 'Element_number'],
 			'data', 1, 1);
 		$self->{'td'} = ['', '', '', '', '', ''];
 		$self->{'td_index'} = -1;
