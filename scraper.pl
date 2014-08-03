@@ -71,12 +71,19 @@ sub end_element {
 			$self->{'td_ok'} = 1;
 			return;
 		}
-		my ($tag, $name, $keyword, $vr, $vm, $retired)
+		my ($tag, $name, $keyword, $vr, $vm, $note)
 			= @{$self->{'td'}};
 		my ($group_number, $element_number) = $tag
 			=~ m/^\(([\d\w]+),([\d\w]+)\)$/ms;
 		$name =~ s/\x{200b}//gms;
 		$keyword =~ s/\x{200b}//gms;
+		my $retired = 0;
+		if ($note =~ m/RET/ms) {
+			$retired = 1;
+			$note =~ s/RET//ms;
+			$note =~ s/\s{2}/\ /gms;
+			$note =~ s/^\s*-\s*//ms;
+		}
 		my $ret_ar = eval {
 			$self->{'dt'}->execute('SELECT COUNT(*) FROM data '.
 				'WHERE Group_number = ? AND Element_number = ?',
@@ -96,6 +103,7 @@ sub end_element {
 				'VR' => $vr,
 				'VM' => $vm,
 				'Retired' => $retired,
+				'Note' => $note,
 			});
 		}
 		$self->{'dt'}->create_index(['Group_number', 'Element_number'],
