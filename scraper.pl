@@ -18,6 +18,7 @@ sub new {
 		'table_flag' => 0,
 		'td_index' => -1,
 		'td' => ['', '', '', '', '', ''],
+		'td_ok' => 0,
 		'tr_index' => 0,
 	}, $type;
 }
@@ -36,6 +37,9 @@ sub start_element {
 	}
 
 	# Right td.
+	if (! $self->{'td_ok'}) {
+		return;
+	}
 	if ($element->{'Name'} eq 'td') {
 		$self->{'td_index'}++;
 	}
@@ -63,7 +67,8 @@ sub end_element {
 	# Right tr element.
 	if ($element->{'Name'} eq 'tr') {
 		if ($self->{'tr_index'} == 0) {
-			$self->{'tr_index'}++;
+			$self->{'tr_index'} = 1;
+			$self->{'td_ok'} = 1;
 			return;
 		}
 		my ($tag, $name, $keyword, $vr, $vm, $retired)
@@ -113,6 +118,9 @@ sub characters {
 	}
 
 	# Right td.
+	if (! $self->{'td_ok'}) {
+		return;
+	}
 	$self->{'td'}->[$self->{'td_index'}] .= $characters->{'Data'};
 	return;
 }
