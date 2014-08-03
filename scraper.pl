@@ -94,7 +94,7 @@ sub end_element {
 		}
 		$self->{'dt'}->create_index(['Tag_group', 'Tag_number'],
 			'data', 1, 1);
-		$self->{'td'} = ['', '', '', '', '', ''];		
+		$self->{'td'} = ['', '', '', '', '', ''];
 		$self->{'td_index'} = -1;
 	}
 	return;
