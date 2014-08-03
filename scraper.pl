@@ -75,6 +75,7 @@ sub end_element {
 			= @{$self->{'td'}};
 		my ($group_number, $element_number) = $tag
 			=~ m/^\(([\d\w]+),([\d\w]+)\)$/ms;
+		$name =~ s/\x{200b}//gms;
 		$keyword =~ s/\x{200b}//gms;
 		my $ret_ar = eval {
 			$self->{'dt'}->execute('SELECT COUNT(*) FROM data '.
